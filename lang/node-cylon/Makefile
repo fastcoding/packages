@@ -57,7 +57,7 @@ define Package/node-cylon/description
 endef
 
 define Build/Prepare
-	/bin/tar xzf $(DL_DIR)/$(PKG_SOURCE) -C $(PKG_BUILD_DIR) --strip-components 1
+	tar xzf $(DL_DIR)/$(PKG_SOURCE) -C $(PKG_BUILD_DIR) --strip-components 1
 	$(Build/Patch)
 endef
 

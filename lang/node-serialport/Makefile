@@ -32,6 +32,7 @@ define Package/node-serialport
   CATEGORY:=Languages
   TITLE:=Node.js package to access serial ports for reading and writing
   URL:=https://www.npmjs.org/package/serialport
+  DEPENDS:=+node-npm
 endef
 
 define Package/node-serialport/description
@@ -39,7 +40,7 @@ define Package/node-serialport/description
 endef
 
 define Build/Prepare
-	/bin/tar xzf $(DL_DIR)/$(PKG_SOURCE) -C $(PKG_BUILD_DIR) --strip-components 1
+	tar xzf $(DL_DIR)/$(PKG_SOURCE) -C $(PKG_BUILD_DIR) --strip-components 1
 	$(Build/Patch)
 endef
 

@@ -42,7 +42,8 @@ define Package/libuv/description
 endef
 
 define Build/Configure
-	( cd $(PKG_BUILD_DIR); ./autogen.sh )
+	( cd $(PKG_BUILD_DIR); \
+		$(AM_TOOL_PATHS) ./autogen.sh )
 	$(call Build/Configure/Default)
 endef
 
