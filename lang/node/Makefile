@@ -125,7 +125,7 @@ HOST_CONFIGURE_VARS:=
 
 HOST_CONFIGURE_ARGS:= \
 	--without-snapshot \
-	--prefix=$(STAGING_DIR_HOSTPKG)
+	--prefix=$(STAGING_DIR_HOST)
 
 HOST_CONFIGURE_CMD:=python ./configure
 
