@@ -1,0 +1,143 @@
+From 34825d50db18631a92902af3f51ddd27aa074c90 Mon Sep 17 00:00:00 2001
+From: Jeroen Roovers <jer-gentoo@users.noreply.github.com>
+Date: Fri, 13 Apr 2018 05:54:42 +0200
+Subject: [PATCH 2/2] Include cmath ...
+
+... instead of using the C implementations of isnan and isinf
+---
+ src/node_crypto.cc | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+--- a/src/node_crypto.cc
++++ b/src/node_crypto.cc
+@@ -44,9 +44,9 @@
+ #include "StartComAndWoSignData.inc"
+ 
+ #include <algorithm>
++#include <cmath>
+ #include <errno.h>
+ #include <limits.h>  // INT_MAX
+-#include <math.h>
+ #include <stdlib.h>
+ #include <string.h>
+ #include <vector>
+--- a/deps/v8/src/base/debug/stack_trace_posix.cc
++++ b/deps/v8/src/base/debug/stack_trace_posix.cc
+@@ -26,7 +26,7 @@
+ #include <vector>
+ 
+ #if V8_LIBC_GLIBC || V8_LIBC_BSD || V8_LIBC_UCLIBC || V8_OS_SOLARIS
+-#define HAVE_EXECINFO_H 1
++#define HAVE_EXECINFO_H 0
+ #endif
+ 
+ #if HAVE_EXECINFO_H
+--- a/deps/v8/src/compiler/node-matchers.h
++++ b/deps/v8/src/compiler/node-matchers.h
+@@ -168,7 +168,7 @@ struct FloatMatcher final : public Value
+     return this->HasValue() && std::isnormal(this->Value());
+   }
+   bool IsInteger() const {
+-    return this->HasValue() && std::nearbyint(this->Value()) == this->Value();
++    return this->HasValue() && ::round(this->Value()) == this->Value();
+   }
+   bool IsPositiveOrNegativePowerOf2() const {
+     if (!this->HasValue() || (this->Value() == 0.0)) {
+--- a/deps/v8/src/ic/ic.cc
++++ b/deps/v8/src/ic/ic.cc
+@@ -28,7 +28,12 @@
+ #include "src/runtime/runtime.h"
+ #include "src/tracing/trace-event.h"
+ #include "src/tracing/tracing-category-observer.h"
+-
++template <class T>
++std::string f2s(T t){
++	char buf[128];
++	snprintf(buf,sizeof(buf),"%f",t);
++  return std::string(buf);
++}
+ namespace v8 {
+ namespace internal {
+ 
+@@ -161,7 +166,7 @@ void IC::TraceIC(const char* type, Handl
+   if (map != nullptr) {
+     ic_info.is_dictionary_map = map->is_dictionary_map();
+     ic_info.number_of_own_descriptors = map->NumberOfOwnDescriptors();
+-    ic_info.instance_type = std::to_string(map->instance_type());
++    ic_info.instance_type = f2s(map->instance_type());
+   }
+   // TODO(lpy) Add name as key field in ICStats.
+   ICStats::instance()->End();
+--- a/deps/v8/src/tracing/traced-value.cc
++++ b/deps/v8/src/tracing/traced-value.cc
+@@ -7,6 +7,12 @@
+ #include "src/base/platform/platform.h"
+ #include "src/conversions.h"
+ 
++template <class T>
++std::string f2s(T t){
++  char buf[128];
++  snprintf(buf,sizeof(buf),"%f",t);
++  return std::string(buf);
++}
+ namespace v8 {
+ namespace tracing {
+ 
+@@ -75,7 +81,7 @@ TracedValue::~TracedValue() {
+ void TracedValue::SetInteger(const char* name, int value) {
+   DCHECK_CURRENT_CONTAINER_IS(kStackTypeDict);
+   WriteName(name);
+-  data_ += std::to_string(value);
++  data_ += f2s(value);
+ }
+ 
+ void TracedValue::SetDouble(const char* name, double value) {
+@@ -116,7 +122,7 @@ void TracedValue::BeginArray(const char*
+ void TracedValue::AppendInteger(int value) {
+   DCHECK_CURRENT_CONTAINER_IS(kStackTypeArray);
+   WriteComma();
+-  data_ += std::to_string(value);
++  data_ += f2s(value);
+ }
+ 
+ void TracedValue::AppendDouble(double value) {
+--- a/deps/v8/src/wasm/wasm-external-refs.cc
++++ b/deps/v8/src/wasm/wasm-external-refs.cc
+@@ -23,7 +23,7 @@ void f32_floor_wrapper(float* param) { *
+ 
+ void f32_ceil_wrapper(float* param) { *param = ceilf(*param); }
+ 
+-void f32_nearest_int_wrapper(float* param) { *param = nearbyintf(*param); }
++void f32_nearest_int_wrapper(float* param) { *param = ::round(*param); }
+ 
+ void f64_trunc_wrapper(double* param) {
+   WriteDoubleValue(param, trunc(ReadDoubleValue(param)));
+@@ -38,7 +38,7 @@ void f64_ceil_wrapper(double* param) {
+ }
+ 
+ void f64_nearest_int_wrapper(double* param) {
+-  WriteDoubleValue(param, nearbyint(ReadDoubleValue(param)));
++  WriteDoubleValue(param, ::round(ReadDoubleValue(param)));
+ }
+ 
+ void int64_to_float32_wrapper(int64_t* input, float* output) {
+--- a/deps/v8/src/wasm/wasm-interpreter.cc
++++ b/deps/v8/src/wasm/wasm-interpreter.cc
+@@ -426,7 +426,7 @@ inline float ExecuteF32Floor(float a, Tr
+ inline float ExecuteF32Trunc(float a, TrapReason* trap) { return truncf(a); }
+ 
+ inline float ExecuteF32NearestInt(float a, TrapReason* trap) {
+-  return nearbyintf(a);
++  return ::round(a);
+ }
+ 
+ inline float ExecuteF32Sqrt(float a, TrapReason* trap) {
+@@ -449,7 +449,7 @@ inline double ExecuteF64Floor(double a, 
+ inline double ExecuteF64Trunc(double a, TrapReason* trap) { return trunc(a); }
+ 
+ inline double ExecuteF64NearestInt(double a, TrapReason* trap) {
+-  return nearbyint(a);
++  return ::round(a);
+ }
+ 
+ inline double ExecuteF64Sqrt(double a, TrapReason* trap) { return sqrt(a); }

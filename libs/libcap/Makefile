@@ -31,7 +31,7 @@ endef
 MAKE_FLAGS += \
     CFLAGS="$(TARGET_CFLAGS)" \
     BUILD_CC="$(CC)" \
-    BUILD_CFLAGS="$(FPIC) -I$(PKG_BUILD_DIR)/libcap/include" \
+    BUILD_CFLAGS="$(FPIC) -D_MIPS_SZPTR=32 -I$(TOOLCHAIN_DIR)/include -I$(PKG_BUILD_DIR)/libcap/include" \
     CFLAGS="$(TARGET_CFLAGS)" \
     LD="$(TARGET_CC)" \
     LDFLAGS="$(TARGET_LDFLAGS) -shared" \

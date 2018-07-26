@@ -39,6 +39,7 @@ define Package/motion/conffiles
 endef
 
 CONFIGURE_ARGS+= \
+	--without-v4l \
 	--without-optimizecpu \
 	--without-ffmpeg \
 	--without-jpeg-mmx \

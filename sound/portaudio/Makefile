@@ -42,9 +42,20 @@ endef
 
 CONFIGURE_ARGS+= \
 	--with-alsa \
+	--enable-static \
+	--enable-shared \
 	--without-asihpi \
 	--without-jack \
-	--with-oss \
+	--with-oss 
+
+define Build/Configure
+	(\
+  cd $(PKG_BUILD_DIR) ; \
+			$(STAGING_DIR_HOST)/bin/libtoolize --copy && \
+			$(STAGING_DIR_HOST)/bin/aclocal -I m4 && \
+			$(STAGING_DIR_HOST)/bin/autoreconf -ivf ;\
+  $(call Build/Configure/Default) )
+endef
 
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/include
@@ -64,7 +75,7 @@ endef
 
 define Package/portaudio/install
 	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libportaudio.so.* $(1)/usr/lib/
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libportaudio.{a,so*} $(1)/usr/lib/
 endef
 
 $(eval $(call BuildPackage,portaudio))

@@ -2091,3 +2091,37 @@
  #undef USE_PORTAUDIO
  // determine portaudio version by looking for a #define which is not in V18
  #ifdef paNeverDropInput
+--- a/src/Makefile
++++ b/src/Makefile
+@@ -45,7 +45,7 @@ USE_AUDIO=-DUSE_PULSEAUDIO
+ else
+ ifeq ($(AUDIO),portaudio)
+ WAVE=wave.cpp
+-LIB_AUDIO=-lportaudio
++LIB_AUDIO=-lportaudio -lasound
+ USE_AUDIO=-DUSE_PORTAUDIO
+ else
+ ifeq ($(AUDIO),portaudio0)
+@@ -93,7 +93,7 @@ SRCS3 = espeak.cpp
+ OBJS3=$(patsubst %.cpp,%.o,$(SRCS3))
+ LIBS3=-lstdc++ -L . -lespeak
+ 
+-CXXFLAGS=-O2
++CXXFLAGS:=-O2 -fPIC $(CXXFLAGS)
+ 
+ 
+ all: $(BIN_NAME) $(LIB_NAME) $(STATIC_LIB_NAME) $(BIN2_NAME)
+@@ -110,11 +110,11 @@ $(BIN2_NAME): $(OBJS3) $(LIB_NAME)
+ 
+ 
+ x_%.o: %.cpp
+-	$(CXX) $(CXXFLAGS) $(USE_AUDIO) -D PATH_ESPEAK_DATA=\"$(DATADIR)\" -Wall -fpic -fvisibility=hidden -pedantic \
++	$(CXX) $(CXXFLAGS) $(USE_AUDIO) -D PATH_ESPEAK_DATA=\"$(DATADIR)\" -Wall -fPIC -fvisibility=hidden -pedantic \
+ 	-I. -D LIBRARY -c -fno-exceptions  $<  -o x_$*.o
+ 
+ $(LIB_NAME): $(OBJS2)
+-	$(CXX) $(LDFLAGS) -shared $(SONAME_OPT)$(LIB_NAME).$(LIB_VERSION) -o $@ \
++	$(CXX) $(LDFLAGS) -fPIC -shared $(SONAME_OPT)$(LIB_NAME).$(LIB_VERSION) -o $@ \
+ 	$(OBJS2) $(LIBS2)
+ 	mv $(LIB_NAME) $(LIB_NAME).$(LIBTAG)
+ 	$(LN_SF) $(LIB_NAME).$(LIBTAG) $(LIB_NAME).$(LIB_VERSION)

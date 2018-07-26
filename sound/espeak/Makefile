@@ -27,7 +27,7 @@ include $(INCLUDE_DIR)/package.mk
 define Package/espeak
   SECTION:=sound
   CATEGORY:=Sound
-  DEPENDS:=+libpthread +libstdcpp +portaudio
+  DEPENDS:=+libpthread +libstdcpp +portaudio +alsa-lib
   TITLE:=Speech synthesizer
   URL:=http://espeak.sourceforge.net/
 endef
