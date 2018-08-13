@@ -1,0 +1,20 @@
+--- a/i2c-lua.c
++++ b/i2c-lua.c
+@@ -90,7 +90,7 @@ static int i2clua_impl(lua_State *L, int
+     }
+ 
+     // Return results to Lua
+-    lua_pushnumber(L, rc);
++    lua_pushinteger(L, rc);
+     if (op & I2CLUA_OP_RD) {
+         if ((rc == I2CLUA_SUCCESS) && (rd_length > 0))
+             lua_pushlstring(L, (char*)msgs[1].buf, rd_length);
+@@ -321,7 +321,7 @@ LUALIB_API int luaopen_i2c(lua_State *L)
+ 
+         // Library constants (TBD: how to make them read-only?)
+         for (i = 0; i < sizeof(const_number) / sizeof(const_number[0]); i++) {
+-            lua_pushnumber(L, const_number[i].value);
++            lua_pushinteger(L, const_number[i].value);
+             lua_setfield(L, -2, const_number[i].name);
+         }
+         for (i = 0; i < sizeof(const_string) / sizeof(const_string[0]); i++) {
